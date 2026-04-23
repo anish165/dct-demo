@@ -39,17 +39,113 @@
 </style>
 </head>
 <body>
-<div id="root"></div>
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<script type="text/babel" src="ios-frame.jsx"></script>
-<script type="text/babel" src="data.jsx"></script>
-<script type="text/babel" src="theme.jsx"></script>
-<script type="text/babel" src="screens-feed.jsx"></script>
-<script type="text/babel" src="screens-other.jsx"></script>
-<script type="text/babel" src="overlays.jsx"></script>
-<script type="text/babel" src="onboarding.jsx"></script>
-<script type="text/babel" src="app.jsx"></script>
+
+<!-- Password gate -->
+<div id="gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#e8e5de;">
+  <div style="background:#fff;border-radius:24px;padding:48px 40px;box-shadow:0 20px 60px rgba(0,0,0,0.12);text-align:center;max-width:380px;width:100%;">
+    <svg width="48" height="48" viewBox="0 0 100 100" style="margin-bottom:20px;">
+      <path d="M 10 15 h 25 a 25 25 0 0 1 -25 25 z" transform="rotate(0 22.5 27.5)" fill="#F15A3A"/>
+      <path d="M 35 15 h 25 a 25 25 0 0 1 -25 25 z" transform="rotate(90 47.5 27.5)" fill="#141414"/>
+      <path d="M 60 40 h 25 a 25 25 0 0 1 -25 25 z" transform="rotate(180 72.5 52.5)" fill="#3B2B6B"/>
+      <path d="M 35 65 h 25 a 25 25 0 0 1 -25 25 z" transform="rotate(270 47.5 77.5)" fill="#F15A3A"/>
+      <rect x="64" y="19" width="12" height="12" transform="rotate(45 70 25)" fill="#F15A3A"/>
+      <circle cx="82" cy="60" r="5" fill="#3B2B6B"/>
+    </svg>
+    <div style="font-family:-apple-system,system-ui,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#F15A3A;font-weight:700;margin-bottom:8px;">DCT Abu Dhabi</div>
+    <div style="font-family:-apple-system,'SF Pro Display',system-ui,sans-serif;font-size:24px;font-weight:700;color:#141414;letter-spacing:-0.5px;margin-bottom:6px;">Frontline App Pitch</div>
+    <div style="font-family:-apple-system,system-ui,sans-serif;font-size:14px;color:#6B6358;margin-bottom:28px;">Enter the access code to continue</div>
+    <div style="position:relative;">
+      <input id="pw" type="password" placeholder="Access code"
+        style="width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(20,20,20,0.12);background:#F7F2E8;font-size:15px;font-family:-apple-system,system-ui,sans-serif;color:#141414;outline:none;box-sizing:border-box;transition:border-color 0.2s;"
+        onfocus="this.style.borderColor='#F15A3A'" onblur="this.style.borderColor='rgba(20,20,20,0.12)'"
+        onkeydown="if(event.key==='Enter')document.getElementById('unlock').click()"/>
+    </div>
+    <div id="gate-error" style="font-size:13px;color:#C8253A;margin-top:10px;min-height:20px;font-family:-apple-system,system-ui,sans-serif;"></div>
+    <button id="unlock" onclick="checkPassword()"
+      style="width:100%;padding:14px;border-radius:14px;border:none;background:#F15A3A;color:#fff;font-size:15px;font-weight:600;font-family:-apple-system,system-ui,sans-serif;cursor:pointer;margin-top:6px;box-shadow:0 6px 18px rgba(241,90,58,0.3);transition:transform 0.15s;"
+      onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+      Enter
+    </button>
+    <div style="font-size:11px;color:#9a9488;margin-top:18px;font-family:-apple-system,system-ui,sans-serif;">Confidential — for authorized viewers only</div>
+  </div>
+</div>
+
+<div id="root" style="display:none;"></div>
+
+<script>
+// Hash-based password check — the actual password is not stored in plaintext in the source
+async function sha256(message) {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+const EXPECTED_HASH = '5d36e229dbf7ff85531f6697250a76b54d9cad539a348c1f2bc414e25217f336';
+
+async function checkPassword() {
+  const input = document.getElementById('pw').value;
+  const hash = await sha256(input);
+  if (hash === EXPECTED_HASH) {
+    // Persist for this session
+    sessionStorage.setItem('dct_auth', '1');
+    unlockContent();
+  } else {
+    document.getElementById('gate-error').textContent = 'Incorrect code. Please try again.';
+    document.getElementById('pw').style.borderColor = '#C8253A';
+    document.getElementById('pw').value = '';
+    document.getElementById('pw').focus();
+  }
+}
+
+function unlockContent() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('root').style.display = 'block';
+  // Dynamically load all scripts
+  var scripts = [
+    { src: 'https://unpkg.com/react@18.3.1/umd/react.development.js', integrity: 'sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L', type: '' },
+    { src: 'https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js', integrity: 'sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm', type: '' },
+    { src: 'https://unpkg.com/@babel/standalone@7.29.0/babel.min.js', integrity: 'sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y', type: '' },
+  ];
+  var appScripts = [
+    'ios-frame.jsx', 'data.jsx', 'theme.jsx',
+    'screens-feed.jsx', 'screens-other.jsx', 'overlays.jsx',
+    'onboarding.jsx', 'app.jsx',
+  ];
+  function loadNext(list, idx, cb) {
+    if (idx >= list.length) { cb(); return; }
+    var s = document.createElement('script');
+    s.src = list[idx].src;
+    if (list[idx].integrity) { s.integrity = list[idx].integrity; s.crossOrigin = 'anonymous'; }
+    s.onload = function() { loadNext(list, idx + 1, cb); };
+    document.body.appendChild(s);
+  }
+  loadNext(scripts, 0, function() {
+    // Load JSX files sequentially (Babel needs to be loaded first, and each depends on previous)
+    function loadJsx(idx) {
+      if (idx >= appScripts.length) return;
+      var s = document.createElement('script');
+      s.type = 'text/babel';
+      s.src = appScripts[idx];
+      s.setAttribute('data-type', 'module');
+      document.body.appendChild(s);
+      // Babel standalone processes scripts as they're added when using async,
+      // but we need to load them all then trigger Babel to process
+      if (idx === appScripts.length - 1) {
+        // All script tags added — trigger Babel to transform them
+        setTimeout(function() { Babel.transformScriptTags(); }, 100);
+      }
+      loadJsx(idx + 1);
+    }
+    loadJsx(0);
+  });
+}
+
+// Auto-unlock if already authenticated this session
+if (sessionStorage.getItem('dct_auth') === '1') {
+  unlockContent();
+}
+</script>
+
 </body>
 </html>
