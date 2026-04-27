@@ -412,11 +412,11 @@ function AppRoot() {
             }}>Try it live →</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
               {[
-                { label: 'Simulate push', fn: triggerPush },
-                { label: 'Replay onboarding', fn: () => {
+                { label: 'Signup flow', fn: () => {
                     try { localStorage.removeItem('dct_onboarded'); localStorage.removeItem('dct_profile'); } catch {}
                     setOnboarded(false); setProfile(null);
                 } },
+                { label: 'Simulate push', fn: triggerPush },
                 { label: 'Open alert', fn: () => setShowAnnouncement(true) },
                 { label: 'Take a lesson', fn: () => setLesson({ show: true, stage: 'playing' }) },
                 { label: 'Jump to leaderboard', fn: () => { setTab('recognition'); } },
