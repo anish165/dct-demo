@@ -305,6 +305,7 @@ function AppRoot() {
   const [profile, setProfile] = React.useState(() => {
     try { return JSON.parse(localStorage.getItem('dct_profile') || 'null'); } catch { return null; }
   });
+  const [showTourOnly, setShowTourOnly] = React.useState(false);
 
   // push notification demo trigger
   const triggerPush = () => {
@@ -416,6 +417,9 @@ function AppRoot() {
                     try { localStorage.removeItem('dct_onboarded'); localStorage.removeItem('dct_profile'); } catch {}
                     setOnboarded(false); setProfile(null);
                 } },
+                { label: 'Onboarding experience', fn: () => {
+                    setShowTourOnly(true);
+                } },
                 { label: 'Simulate push', fn: triggerPush },
                 { label: 'Open alert', fn: () => setShowAnnouncement(true) },
                 { label: 'Take a lesson', fn: () => setLesson({ show: true, stage: 'playing' }) },
@@ -452,7 +456,14 @@ function AppRoot() {
                 height: '100%', background: theme.appBg, overflow: 'hidden',
                 position: 'relative', display: 'flex', flexDirection: 'column',
               }}>
-                {!onboarded ? (
+                {showTourOnly ? (
+                  <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+                    <AppTourSlides theme={theme} profile={profile || persona} onDone={() => {
+                      setShowTourOnly(false);
+                      setTab('home'); update({ tab: 'home' });
+                    }}/>
+                  </div>
+                ) : !onboarded ? (
                   <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
                     <OnboardingFlow theme={theme} onComplete={(p) => {
                       setProfile(p); setOnboarded(true);
