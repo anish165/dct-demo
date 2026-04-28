@@ -271,8 +271,11 @@ function StepRole({ theme, venueType, brandId, value, setValue, onNext, onBack }
 }
 
 // ═══ STEP 4 · identity (form or UAE Pass) ═════════════════════
-function StepIdentity({ theme, form, setForm, onNext, onBack }) {
-  const valid = form.name && form.mobile.length >= 9 && /@/.test(form.email);
+function StepIdentity({ theme, form: formProp, setForm, onNext, onBack }) {
+  const [localForm, setLocalForm] = React.useState(formProp || { name: '', mobile: '', email: '' });
+  const form = localForm;
+  const update = (patch) => { const n = {...localForm, ...patch}; setLocalForm(n); setForm(n); };
+  const valid = form.name.trim().length > 0 && form.mobile.replace(/\D/g,'').length >= 8 && /@/.test(form.email);
   const fieldStyle = {
     width: '100%', padding: '13px 14px', borderRadius: 12,
     border: `1.5px solid ${theme.hairline}`, background: theme.surface,
@@ -294,7 +297,7 @@ function StepIdentity({ theme, form, setForm, onNext, onBack }) {
 
       {/* UAE Pass — hero route */}
       <div style={{ padding: '10px 20px 0' }}>
-        <button style={{
+        <button onClick={() => onNext()} style={{
           width: '100%', padding: '14px 16px', borderRadius: 14, border: 'none',
           background: '#000', color: '#fff',
           fontSize: 15, fontWeight: 600, fontFamily: theme.bodyFont, cursor: 'pointer',
@@ -329,7 +332,7 @@ function StepIdentity({ theme, form, setForm, onNext, onBack }) {
         <div>
           <div style={labelStyle}>Full name</div>
           <input type="text" value={form.name}
-            onChange={e => setForm({...form, name: e.target.value})}
+            onChange={e => update({ name: e.target.value })}
             placeholder="Leila Haddad" style={fieldStyle}/>
         </div>
         <div>
@@ -344,7 +347,7 @@ function StepIdentity({ theme, form, setForm, onNext, onBack }) {
               fontWeight: 500, paddingRight: 8, borderRight: `1px solid ${theme.hairline}`,
             }}>🇦🇪 +971</div>
             <input type="tel" value={form.mobile}
-              onChange={e => setForm({...form, mobile: e.target.value.replace(/\D/g,'')})}
+              onChange={e => update({ mobile: e.target.value.replace(/\D/g,'') })}
               placeholder="50 123 4567"
               style={{
                 flex: 1, padding: '13px 0', border: 'none', background: 'transparent',
@@ -355,7 +358,7 @@ function StepIdentity({ theme, form, setForm, onNext, onBack }) {
         <div>
           <div style={labelStyle}>Email</div>
           <input type="email" value={form.email}
-            onChange={e => setForm({...form, email: e.target.value})}
+            onChange={e => update({ email: e.target.value })}
             placeholder="you@hotel.ae" style={fieldStyle}/>
         </div>
       </div>
@@ -373,6 +376,174 @@ function StepIdentity({ theme, form, setForm, onNext, onBack }) {
   );
 }
 
+// ═══ POST-SIGNUP APP TOUR (5 illustrated slides) ═════════════
+
+const TOUR_SLIDES = [
+  {
+    id: 'welcome',
+    kicker: 'Welcome to DCT Host',
+    title: 'Your city needs you to know it.',
+    body: 'This app keeps you connected, informed and rewarded — every shift, every day.',
+    scene: 'corniche',
+    cta: 'Show me around',
+  },
+  {
+    id: 'learn',
+    kicker: '01 · Learning',
+    title: 'Grow a little every day.',
+    body: 'Soft skills, hard skills, Abu Dhabi knowledge — 2-3 minute videos you can watch between guests. Earn points for every unit you complete.',
+    icon: '📚',
+    scene: null,
+    cta: 'Next',
+  },
+  {
+    id: 'feed',
+    kicker: '02 · Communication',
+    title: 'Stay ahead of the city.',
+    body: 'Priority alerts, event updates and service tips land straight in your feed — before your guests ask.',
+    icon: '📣',
+    scene: 'foodFestival',
+    cta: 'Next',
+  },
+  {
+    id: 'rewards',
+    kicker: '03 · Incentives',
+    title: 'Earn as you serve.',
+    body: 'Points stack up every time you learn, help, or get recognised. Spend them on hotel stays, museum passes, or everyday perks.',
+    icon: '🎁',
+    scene: 'louvre',
+    cta: 'Next',
+  },
+  {
+    id: 'recognition',
+    kicker: '04 · Recognition',
+    title: 'Your work gets seen.',
+    body: 'Badges, peer shout-outs and a city-wide leaderboard — because great hosting deserves more than a thank-you.',
+    icon: '🏆',
+    scene: null,
+    cta: "Let's go →",
+  },
+];
+
+function AppTourSlides({ theme, profile, onDone }) {
+  const [idx, setIdx] = React.useState(0);
+  const slide = TOUR_SLIDES[idx];
+  const isLast = idx === TOUR_SLIDES.length - 1;
+
+  return (
+    <div style={{
+      height: '100%', background: theme.appBg,
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      position: 'relative',
+    }}>
+      {/* illustrated hero */}
+      <div style={{ position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+        {slide.scene ? (
+          <AbuDhabiScene variant={slide.scene} height={240}/>
+        ) : (
+          <div style={{
+            height: 240,
+            background: `linear-gradient(135deg, ${theme.accent} 0%, ${theme.accent2} 100%)`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {slide.icon && (
+              <div style={{
+                fontSize: 72,
+                filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.25))',
+                animation: 'pop 0.5s cubic-bezier(0.34,1.56,0.64,1)',
+              }}>{slide.icon}</div>
+            )}
+            {/* mosaic watermark */}
+            <div style={{ position: 'absolute', right: -10, bottom: -10, opacity: 0.18 }}>
+              <DCTMosaic size={120} variant="protect"/>
+            </div>
+          </div>
+        )}
+        {/* gradient fade into background */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
+          background: `linear-gradient(transparent, ${theme.appBg})`,
+        }}/>
+      </div>
+
+      {/* content */}
+      <div style={{ flex: 1, padding: '8px 28px 0', overflow: 'auto' }}>
+        <div style={{
+          fontSize: 11, fontWeight: 700, letterSpacing: 1.4,
+          color: theme.accent, fontFamily: theme.bodyFont,
+          textTransform: 'uppercase', marginBottom: 10,
+        }}>{slide.kicker}</div>
+
+        <div style={{
+          fontFamily: theme.headerFont, fontSize: 28, fontWeight: 700,
+          color: theme.ink, letterSpacing: -0.8, lineHeight: 1.1,
+          marginBottom: 14, textWrap: 'pretty',
+        }}>{slide.title}</div>
+
+        <div style={{
+          fontSize: 15, color: theme.inkMuted, lineHeight: 1.6,
+          fontFamily: theme.bodyFont, textWrap: 'pretty',
+        }}>{slide.body}</div>
+
+        {/* personalized welcome on first slide */}
+        {slide.id === 'welcome' && profile?.name && (
+          <div style={{
+            marginTop: 20, padding: '14px 16px', borderRadius: 14,
+            background: theme.surface, border: `1px solid ${theme.hairline}`,
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 20,
+              background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent2})`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#fff', fontFamily: theme.headerFont, fontWeight: 600, fontSize: 16,
+            }}>{profile.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()}</div>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: theme.ink, fontFamily: theme.bodyFont }}>
+                Welcome, {profile.name.split(' ')[0]}
+              </div>
+              <div style={{ fontSize: 12, color: theme.inkMuted, fontFamily: theme.bodyFont }}>
+                DCT Host · {profile.venueType ? profile.venueType.charAt(0).toUpperCase()+profile.venueType.slice(1) : 'Frontliner'}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* footer: dots + CTA */}
+      <div style={{ padding: '20px 28px 36px', flexShrink: 0 }}>
+        {/* pagination dots */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 20 }}>
+          {TOUR_SLIDES.map((_, i) => (
+            <div key={i} onClick={() => setIdx(i)} style={{
+              height: 6, borderRadius: 3, cursor: 'pointer',
+              background: i === idx ? theme.accent : theme.chipBg,
+              width: i === idx ? 24 : 6,
+              transition: 'all 0.3s',
+            }}/>
+          ))}
+        </div>
+
+        <button onClick={() => isLast ? onDone() : setIdx(i => i + 1)} style={{
+          width: '100%', padding: '15px', borderRadius: 14, border: 'none',
+          background: theme.accent, color: '#fff',
+          fontSize: 15, fontWeight: 600, fontFamily: theme.bodyFont,
+          cursor: 'pointer', letterSpacing: 0.1,
+          boxShadow: `0 6px 20px ${theme.accent}44`,
+        }}>{slide.cta}</button>
+
+        {!isLast && (
+          <button onClick={onDone} style={{
+            width: '100%', padding: '10px', marginTop: 6,
+            background: 'none', border: 'none', color: theme.inkMuted,
+            fontSize: 13, fontFamily: theme.bodyFont, cursor: 'pointer',
+          }}>Skip tour</button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ═══ MAIN CONTAINER ═══════════════════════════════════════════
 function OnboardingFlow({ theme, onComplete }) {
   const [step, setStep] = React.useState(1);
@@ -380,17 +551,26 @@ function OnboardingFlow({ theme, onComplete }) {
   const [brandId, setBrandId] = React.useState(null);
   const [roleId, setRoleId] = React.useState(null);
   const [form, setForm] = React.useState({ name: '', mobile: '', email: '' });
+  const [profile, setProfile] = React.useState(null);
+  const [showTour, setShowTour] = React.useState(false);
 
   // reset downstream selections when upstream changes
   const pickVenue = (v) => { setVenueType(v); setBrandId(null); setRoleId(null); };
   const pickBrand = (b) => { setBrandId(b); setRoleId(null); };
+
+  if (showTour) {
+    return (
+      <AppTourSlides theme={theme} profile={profile}
+        onDone={() => onComplete(profile)}/>
+    );
+  }
 
   return (
     <div style={{
       height: '100%', overflow: 'auto', background: theme.appBg,
       position: 'relative',
     }}>
-      {/* brand strip at bottom-safe area — the DCT wordmark */}
+      {/* brand strip — DCT wordmark */}
       {step === 1 && (
         <div style={{
           position: 'absolute', top: 12, right: 20, zIndex: 10,
@@ -421,11 +601,15 @@ function OnboardingFlow({ theme, onComplete }) {
       )}
       {step === 4 && (
         <StepIdentity theme={theme} form={form} setForm={setForm}
-          onNext={() => onComplete({ venueType, brandId, roleId, ...form })}
+          onNext={() => {
+            const p = { venueType, brandId, roleId, ...form };
+            setProfile(p);
+            setShowTour(true);
+          }}
           onBack={() => setStep(3)}/>
       )}
     </div>
   );
 }
 
-Object.assign(window, { OnboardingFlow });
+Object.assign(window, { OnboardingFlow, AppTourSlides });
