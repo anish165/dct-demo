@@ -32,9 +32,9 @@ function TabBar({ theme, active, setActive }) {
           <button key={t.id} onClick={() => setActive(t.id)} style={{
             background: 'none', border: 'none', cursor: 'pointer',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
-            padding: '8px 10px 4px', color: on ? theme.accent : theme.inkMuted,
+            padding: '8px 0 4px', color: on ? theme.accent : theme.inkMuted,
             fontFamily: theme.bodyFont, fontSize: 10, fontWeight: 600,
-            letterSpacing: 0.2,
+            letterSpacing: 0.2, flex: 1, minWidth: 0,
           }}>
             <Icon name={t.icon} size={22} color={on ? theme.accent : theme.inkMuted} strokeWidth={on ? 2.2 : 1.7}/>
             <span>{t.label}</span>
