@@ -357,15 +357,14 @@ function AppRoot() {
               color: '#141414', letterSpacing: -1.2, lineHeight: 1.05, marginBottom: 18,
               textTransform: 'uppercase',
             }}>
-              One app in the pocket of every <span style={{ color: '#F15A3A' }}>frontline host</span> in Abu Dhabi.
+              Empowering <span style={{ color: '#F15A3A' }}>Excellence</span> in Everyday Experiences
             </div>
             <div style={{
               fontSize: 15, lineHeight: 1.6, color: '#3a3630', marginBottom: 28,
               fontFamily: '-apple-system, system-ui',
             }}>
-              A mobile-first loyalty and engagement product for hotel staff, concierge desks,
-              information agents and taxi drivers — 10,000+ of whom don't have a work email.
-              SMS-login, push-first, designed for the last mile of the guest experience.
+              A frontline engagement and incentive platform designed to help frontliners build knowledge,
+              stay connected, earn rewards, and be recognised for delivering better everyday visitor experiences.
             </div>
             <div style={{ marginBottom: 24, display: 'flex', gap: 10, padding: '14px 16px', background: '#fff', borderRadius: 14, border: '1px solid rgba(20,20,20,0.08)' }}>
               <DCTMosaic size={56} variant="promote"/>
@@ -380,13 +379,13 @@ function AppRoot() {
             <div style={{
               fontSize: 11, letterSpacing: 2, textTransform: 'uppercase',
               color: '#6b635a', fontWeight: 600, marginBottom: 10,
-            }}>Four pillars, one feed</div>
+            }}>Four pillars</div>
             <div style={{ marginBottom: 28 }}>
               {[
-                { p: 'Learning', d: 'Micro-lessons & full LMS courses. Earn badges and points on completion.' },
-                { p: 'Communication', d: 'Priority alerts, what\'s on in AD, service updates — straight to the lock screen.' },
-                { p: 'Incentives', d: 'DCT-ecosystem rewards — hotel stays, museum entry, pool days — plus everyday partner perks.' },
-                { p: 'Recognition', d: 'Peer shout-outs, badges, venue & city leaderboards.' },
+                { p: 'Learn', d: 'Role-based training, micro-learning, and destination knowledge. Earn points on every completion.' },
+                { p: 'Communicate', d: 'City updates, announcements, service tips, event highlights, and operational alerts.' },
+                { p: 'Incentivise', d: 'Points wallet, rewards shop — hotel stays, museum entry, dining, and everyday perks.' },
+                { p: 'Recognise', d: 'Badges, venue leaderboards, monthly achievements, and top performer visibility.' },
               ].map((x,i) => (
                 <div key={i} style={{
                   padding: '14px 0',
@@ -413,18 +412,17 @@ function AppRoot() {
             }}>Try it live →</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 24 }}>
               {[
-                { label: 'Signup flow', fn: () => {
+                { label: '1. Register', fn: () => {
                     try { localStorage.removeItem('dct_onboarded'); localStorage.removeItem('dct_profile'); } catch {}
                     setOnboarded(false); setProfile(null);
                 } },
-                { label: 'Onboarding experience', fn: () => {
-                    setShowTourOnly(true);
-                } },
+                { label: '2. Learn', fn: () => { setTab('learn'); } },
+                { label: '3. Earn points', fn: () => setLesson({ show: true, stage: 'playing' }) },
+                { label: '4. Stay updated', fn: () => { setTab('feed'); } },
+                { label: '5. Redeem', fn: () => setCoupon(COUPONS[0]) },
+                { label: '6. Recognise', fn: () => { setTab('recognition'); } },
                 { label: 'Simulate push', fn: triggerPush },
-                { label: 'Open alert', fn: () => setShowAnnouncement(true) },
-                { label: 'Take a lesson', fn: () => setLesson({ show: true, stage: 'playing' }) },
-                { label: 'Jump to leaderboard', fn: () => { setTab('recognition'); } },
-                { label: 'Redeem a coupon', fn: () => setCoupon(COUPONS[0]) },
+                { label: 'Onboarding tour', fn: () => { setShowTourOnly(true); } },
               ].map(b => (
                 <button key={b.label} onClick={b.fn} style={{
                   padding: '9px 14px', borderRadius: 99,
@@ -441,9 +439,9 @@ function AppRoot() {
               border: '1px solid rgba(241,90,58,0.22)', fontSize: 12.5, color: '#3a3630',
               lineHeight: 1.55, fontFamily: '-apple-system, system-ui',
             }}>
-              <b style={{ color: '#F15A3A' }}>Built on the FRT platform.</b> Points, XP, tiers,
-              coupons, badges, cohorts, push, QR, and LMS hooks are all live product surfaces —
-              the DCT build is configuration, not new engineering.
+              <b style={{ color: '#F15A3A' }}>This is not only a training app.</b> It is a frontline engagement,
+              communication, incentive, and recognition platform designed to improve everyday
+              visitor experiences. Built on the FRT platform — configuration, not new engineering.
             </div>
           </div>
         )}

@@ -86,7 +86,7 @@ function RecognitionScreen({ theme, persona, onNav }) {
       </div>
 
       <div style={{ display: 'flex', gap: 8, padding: '12px 20px 4px' }}>
-        {[{id:'badges',label:'Badges'},{id:'board',label:'Leaderboard'},{id:'peers',label:'Peer praise'}].map(t => {
+        {[{id:'badges',label:'Badges'},{id:'board',label:'Leaderboard'},{id:'monthly',label:'Monthly'},{id:'peers',label:'Peer praise'}].map(t => {
           const on = tab === t.id;
           return (
             <button key={t.id} onClick={() => setTab(t.id)} style={{
@@ -142,7 +142,7 @@ function RecognitionScreen({ theme, persona, onNav }) {
         <div style={{ padding: '14px 16px 0' }}>
           {/* instance scope chips */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-            {['Abu Dhabi','My venue','My role'].map((s,i) => (
+            {['My venue','My role','Abu Dhabi'].map((s,i) => (
               <div key={s} style={{
                 padding: '5px 10px', borderRadius: 99,
                 background: i === 0 ? theme.accent : theme.surface,
@@ -207,6 +207,65 @@ function RecognitionScreen({ theme, persona, onNav }) {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {tab === 'monthly' && (
+        <div style={{ padding: '14px 16px 0' }}>
+          {/* top performer */}
+          <div style={{
+            background: `linear-gradient(135deg, ${theme.accent2}, ${theme.accent})`,
+            borderRadius: 18, padding: '18px 16px', color: '#fff', marginBottom: 12,
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ position: 'absolute', right: -10, top: -10, opacity: 0.15 }}>
+              <DCTMosaic size={100} variant="protect"/>
+            </div>
+            <div style={{
+              fontSize: 10, letterSpacing: 1.2, fontWeight: 700, opacity: 0.85,
+              fontFamily: theme.bodyFont, marginBottom: 10,
+            }}>TOP PERFORMER · THIS MONTH</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: 26,
+                background: 'rgba(255,255,255,0.2)', border: '2px solid rgba(255,255,255,0.4)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 18, fontWeight: 600,
+              }}>{persona.avatar}</div>
+              <div>
+                <div style={{ fontFamily: theme.headerFont, fontSize: 20, fontWeight: 600 }}>
+                  {persona.name}
+                </div>
+                <div style={{ fontSize: 12, opacity: 0.85, fontFamily: theme.bodyFont }}>
+                  {persona.venue} · Rank #{persona.rank}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* monthly achievements */}
+          <div style={{ fontFamily: theme.headerFont, fontSize: 15, fontWeight: 600, color: theme.ink, marginBottom: 10 }}>
+            May achievements
+          </div>
+          {[
+            { icon: '📚', title: '8 courses completed', sub: 'Top 5% of learners this month', pts: '+400 pts' },
+            { icon: '🏆', title: '3 Destination Challenges won', sub: 'Longest streak at your venue', pts: '+75 pts' },
+            { icon: '⭐', title: '4 peer nominations received', sub: '"Above & Beyond" x2, "City Whisperer" x2', pts: '+80 pts' },
+            { icon: '🎯', title: 'Monthly learning target hit', sub: 'Completed 100% of assigned modules', pts: '+200 pts' },
+          ].map((a, i) => (
+            <div key={i} style={{
+              background: theme.surface, borderRadius: 14, padding: '12px 14px',
+              marginBottom: 8, boxShadow: `0 1px 2px ${theme.hairline}`,
+              display: 'flex', alignItems: 'center', gap: 12,
+            }}>
+              <div style={{ fontSize: 24, flexShrink: 0 }}>{a.icon}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: theme.ink, fontFamily: theme.bodyFont }}>{a.title}</div>
+                <div style={{ fontSize: 11, color: theme.inkMuted, fontFamily: theme.bodyFont }}>{a.sub}</div>
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: theme.accent, fontFamily: theme.bodyFont, flexShrink: 0 }}>{a.pts}</div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -278,7 +337,7 @@ function LearningScreen({ theme, persona, onOpenLesson }) {
           color: theme.ink, letterSpacing: -0.5,
         }}>Learning</div>
         <div style={{ color: theme.inkMuted, fontSize: 13, fontFamily: theme.bodyFont, marginTop: 2 }}>
-          Build skills with micro-lessons — synced from DCT Academy.
+          Role-based training and micro-learning — earn points on every completion.
         </div>
       </div>
 
@@ -765,6 +824,7 @@ function RateExperienceSheet({ theme, unit, onDone }) {
 function IncentivesScreen({ theme, persona, onRedeem }) {
   const dctRewards = COUPONS.filter(c => c.kind === 'dct');
   const partnerRewards = COUPONS.filter(c => c.kind === 'partner');
+  const exclusiveOffers = COUPONS.filter(c => c.kind === 'exclusive');
 
   // persona-tailored "For you" — DCT ecosystem items that match this persona
   const featured = dctRewards
@@ -778,6 +838,15 @@ function IncentivesScreen({ theme, persona, onRedeem }) {
     return am - bm;
   });
 
+  // points history (demo data)
+  const pointsHistory = [
+    { label: 'Completed "Guest Experience Essentials"', pts: '+50', time: '2d ago', positive: true },
+    { label: 'Destination Challenge — weekly quiz', pts: '+25', time: '3d ago', positive: true },
+    { label: 'Redeemed: Louvre entry for two', pts: '-450', time: '5d ago', positive: false },
+    { label: 'Completed module: Active listening', pts: '+15', time: '1w ago', positive: true },
+    { label: 'Course review: Service Excellence', pts: '+10', time: '1w ago', positive: true },
+  ];
+
   return (
     <div style={{ paddingBottom: 100 }}>
       <div style={{ padding: '62px 20px 4px' }}>
@@ -786,35 +855,75 @@ function IncentivesScreen({ theme, persona, onRedeem }) {
           color: theme.ink, letterSpacing: -0.5,
         }}>Rewards</div>
         <div style={{ color: theme.inkMuted, fontSize: 13, fontFamily: theme.bodyFont, marginTop: 2 }}>
-          Spend your points across Abu Dhabi — hotels, attractions, and everyday perks.
+          Earn points, redeem rewards, and access exclusive frontliner benefits.
         </div>
       </div>
 
-      {/* balance */}
+      {/* ── POINTS WALLET ── */}
       <div style={{
-        margin: '14px 16px 0', padding: '16px 18px', borderRadius: 18,
+        margin: '14px 16px 0', borderRadius: 18, overflow: 'hidden',
         background: theme.ink, color: theme.surface,
-        display: 'flex', alignItems: 'center', gap: 16,
       }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 11, opacity: 0.7, letterSpacing: 0.5, fontFamily: theme.bodyFont, marginBottom: 2 }}>
-            AVAILABLE POINTS
+        <div style={{ padding: '16px 18px', display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 10, opacity: 0.6, letterSpacing: 1, fontFamily: theme.bodyFont, marginBottom: 2, fontWeight: 600 }}>
+              POINTS WALLET
+            </div>
+            <div style={{ fontFamily: theme.headerFont, fontSize: 30, fontWeight: 600, letterSpacing: -0.5, lineHeight: 1 }}>
+              {persona.points.toLocaleString()}
+            </div>
           </div>
-          <div style={{ fontFamily: theme.headerFont, fontSize: 30, fontWeight: 600, letterSpacing: -0.5, lineHeight: 1 }}>
-            {persona.points.toLocaleString()}
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: 10, opacity: 0.6, letterSpacing: 0.5, fontFamily: theme.bodyFont }}>AVAILABLE</div>
           </div>
         </div>
-        <button style={{
-          padding: '9px 14px', borderRadius: 99, border: 'none',
-          background: theme.accent2, color: '#000',
-          fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: theme.bodyFont,
-        }}>Passbook</button>
+        <div style={{
+          display: 'flex', borderTop: '1px solid rgba(255,255,255,0.12)',
+        }}>
+          <div style={{ flex: 1, padding: '12px 18px', borderRight: '1px solid rgba(255,255,255,0.12)' }}>
+            <div style={{ fontSize: 10, opacity: 0.6, letterSpacing: 0.5, fontFamily: theme.bodyFont, marginBottom: 2 }}>EARNED</div>
+            <div style={{ fontFamily: theme.headerFont, fontSize: 18, fontWeight: 600 }}>6,420</div>
+          </div>
+          <div style={{ flex: 1, padding: '12px 18px' }}>
+            <div style={{ fontSize: 10, opacity: 0.6, letterSpacing: 0.5, fontFamily: theme.bodyFont, marginBottom: 2 }}>REDEEMED</div>
+            <div style={{ fontFamily: theme.headerFont, fontSize: 18, fontWeight: 600 }}>1,600</div>
+          </div>
+        </div>
+      </div>
+
+      {/* points history */}
+      <div style={{ padding: '12px 16px 0' }}>
+        <div style={{
+          background: theme.surface, borderRadius: 14, overflow: 'hidden',
+          boxShadow: `0 1px 2px ${theme.hairline}`,
+        }}>
+          <div style={{
+            padding: '10px 14px', fontSize: 11, fontWeight: 700, letterSpacing: 0.8,
+            color: theme.inkMuted, fontFamily: theme.bodyFont, textTransform: 'uppercase',
+            borderBottom: `1px solid ${theme.hairline}`,
+          }}>Recent activity</div>
+          {pointsHistory.map((h, i) => (
+            <div key={i} style={{
+              padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10,
+              borderBottom: i < pointsHistory.length - 1 ? `1px solid ${theme.hairline}` : 'none',
+            }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13, fontWeight: 500, color: theme.ink, fontFamily: theme.bodyFont }}>{h.label}</div>
+                <div style={{ fontSize: 11, color: theme.inkMuted, fontFamily: theme.bodyFont }}>{h.time}</div>
+              </div>
+              <div style={{
+                fontSize: 14, fontWeight: 700, fontFamily: theme.headerFont,
+                color: h.positive ? theme.accent : theme.priority,
+              }}>{h.pts}</div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* ── FOR YOU — persona-tailored featured ── */}
       <SectionHeader theme={theme}
-        kicker="Picked for you"
-        title="Because you're on the front line" />
+        kicker="Rewards shop"
+        title="Picked for you" />
       <div style={{
         padding: '0 16px', display: 'flex', gap: 10,
         overflowX: 'auto', scrollbarWidth: 'none',
@@ -842,6 +951,53 @@ function IncentivesScreen({ theme, persona, onRedeem }) {
       <div style={{ padding: '0 16px 0' }}>
         {sortedPartners.map(c => (
           <PartnerRewardRow key={c.id} coupon={c} theme={theme} persona={persona} onRedeem={onRedeem}/>
+        ))}
+      </div>
+
+      {/* ── EXCLUSIVE FRONTLINER OFFERS (free) ── */}
+      <SectionHeader theme={theme}
+        kicker="Exclusive frontliner offers"
+        title="No points needed"
+        caption="Benefits available to all registered frontliners — just show your app."/>
+      <div style={{ padding: '0 16px 0' }}>
+        {exclusiveOffers.map(c => (
+          <div key={c.id} style={{
+            marginBottom: 10, borderRadius: 14, overflow: 'hidden',
+            background: theme.surface, boxShadow: `0 1px 2px ${theme.hairline}`,
+            display: 'flex',
+          }}>
+            <div style={{
+              width: 78, background: c.color, color: '#fff',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              position: 'relative', flexShrink: 0,
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, fontFamily: theme.bodyFont }}>FREE</div>
+              <div style={{
+                position: 'absolute', right: -6, top: '50%', transform: 'translateY(-50%)',
+                width: 12, height: 12, borderRadius: 6, background: theme.surface,
+              }}/>
+            </div>
+            <div style={{ flex: 1, padding: '11px 14px 11px 18px', minWidth: 0 }}>
+              <div style={{
+                fontSize: 10.5, color: theme.inkMuted, letterSpacing: 0.4,
+                fontFamily: theme.bodyFont, fontWeight: 600, marginBottom: 2,
+              }}>{c.brand.toUpperCase()}</div>
+              <div style={{
+                fontFamily: theme.headerFont, fontSize: 14, fontWeight: 600,
+                color: theme.ink, lineHeight: 1.25, marginBottom: 4, letterSpacing: -0.2,
+              }}>{c.title}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{
+                  padding: '3px 8px', borderRadius: 99,
+                  background: `${theme.accent}18`, color: theme.accent,
+                  fontSize: 10, fontWeight: 700, letterSpacing: 0.5, fontFamily: theme.bodyFont,
+                }}>{c.category.toUpperCase()}</div>
+                <div style={{ fontSize: 11, color: theme.inkMuted, fontFamily: theme.bodyFont }}>
+                  {c.expires}
+                </div>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>
