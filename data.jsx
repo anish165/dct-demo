@@ -164,11 +164,11 @@ const LEADERBOARD = [
 const LEARNING_MODULES = [
   {
     id: 'soft',
-    name: 'Soft Skills',
+    name: 'Guest Experience Essentials',
     desc: 'Communication, empathy, de-escalation',
     totalUnits: 36,
     completedUnits: 12,
-    icon: '\uD83D\uDCAC',
+    icon: '🎯',
     color: '#F15A3A',
     units: [
       { id: 's1', name: 'Active listening fundamentals', duration: '2:30', points: 15, completed: true },
@@ -210,32 +210,42 @@ const LEARNING_MODULES = [
     ],
   },
   {
-    id: 'hard',
-    name: 'Hard Skills',
-    desc: 'Systems, procedures, protocols',
-    totalUnits: 24,
-    completedUnits: 8,
-    icon: '\u2699\uFE0F',
+    id: 'destination',
+    name: 'Destination Knowledge',
+    desc: 'Landmarks, culture, attractions, events',
+    totalUnits: 28,
+    completedUnits: 5,
+    icon: '🗺️',
     color: '#3B2B6B',
     units: [],
   },
   {
-    id: 'abudhabi',
-    name: 'Abu Dhabi Info',
-    desc: 'Landmarks, culture, events',
-    totalUnits: 28,
-    completedUnits: 5,
-    icon: '\uD83C\uDFDB',
+    id: 'cultural',
+    name: 'Cultural Awareness',
+    desc: 'Traditions, etiquette, guest sensitivity',
+    totalUnits: 18,
+    completedUnits: 3,
+    icon: '🌍',
     color: '#1F7A4C',
+    units: [],
+  },
+  {
+    id: 'service',
+    name: 'Service Excellence',
+    desc: 'Hospitality standards, recovery, VIP handling',
+    totalUnits: 22,
+    completedUnits: 6,
+    icon: '⭐',
+    color: '#C8253A',
     units: [],
   },
 ];
 
 const COURSES = [
-  { id: 'c1', name: 'Cultural Etiquette for Ramadan', mods: 6, progress: 0, reward: '150 pts + Badge', status: 'new', duration: '28 min' },
-  { id: 'c2', name: 'Handling VIP arrivals', mods: 4, progress: 0.75, reward: '80 pts', status: 'in-progress', duration: '16 min' },
-  { id: 'c3', name: 'Emergency evacuation drills', mods: 3, progress: 1, reward: '120 pts + Badge', status: 'complete', duration: '12 min' },
-  { id: 'c4', name: 'What\'s new in Saadiyat Cultural District', mods: 5, progress: 0.4, reward: '100 pts', status: 'in-progress', duration: '22 min' },
+  { id: 'c1', name: 'Guest Experience Essentials', mods: 6, progress: 0.75, reward: '50 pts', status: 'in-progress', duration: '28 min' },
+  { id: 'c2', name: 'Destination Knowledge — Abu Dhabi', mods: 5, progress: 0.4, reward: '100 pts + Badge', status: 'in-progress', duration: '22 min' },
+  { id: 'c3', name: 'Cultural Awareness for Ramadan', mods: 4, progress: 0, reward: '150 pts + Badge', status: 'new', duration: '18 min' },
+  { id: 'c4', name: 'Service Excellence Standards', mods: 3, progress: 1, reward: '120 pts + Badge', status: 'complete', duration: '12 min' },
   { id: 'c5', name: 'Arabic phrases for frontline hosts', mods: 8, progress: 0, reward: '200 pts + Badge', status: 'new', duration: '40 min' },
 ];
 
@@ -264,6 +274,14 @@ const COUPONS = [
   { id: 'pt6', kind: 'partner', category: 'Groceries', brand: 'Al Maya Supermarket', title: 'AED 25 off essentials',       cost: 90,  expires: 'Jan 10', color: '#F15A3A', audience: ['taxi','info'] },
   { id: 'pt7', kind: 'partner', category: 'Ride',      brand: 'Careem',            title: 'AED 25 ride credit',            cost: 130, expires: 'Dec 25', color: '#0e7a4b', audience: ['info','concierge'] },
   { id: 'pt8', kind: 'partner', category: 'F&B',       brand: 'Noon Food',         title: 'AED 40 off your next order',    cost: 160, expires: 'Jan 15', color: '#feee00', textDark: true, audience: ['taxi','info','concierge'] },
+
+  // ── EXCLUSIVE FRONTLINER OFFERS (free, no points needed) ──
+  { id: 'ex1', kind: 'exclusive', category: 'Coffee',   brand: '%Arabica',          title: 'Free coffee every Friday',      cost: 0, expires: 'Ongoing', color: '#2c2c2c', audience: ['concierge','info','taxi'] },
+  { id: 'ex2', kind: 'exclusive', category: 'Meals',    brand: 'Jones the Grocer',  title: 'Meal deal — AED 29 lunch set',  cost: 0, expires: 'Ongoing', color: '#4a7a3a', audience: ['concierge','info','taxi'] },
+  { id: 'ex3', kind: 'exclusive', category: 'Retail',   brand: 'Sharaf DG',         title: '15% off electronics',           cost: 0, expires: 'Mar 31',  color: '#0057a6', audience: ['taxi','info','concierge'] },
+  { id: 'ex4', kind: 'exclusive', category: 'Wellness', brand: 'Fit Republic',      title: 'Free trial week membership',    cost: 0, expires: 'Feb 28',  color: '#E08264', audience: ['concierge','info','taxi'] },
+  { id: 'ex5', kind: 'exclusive', category: 'Family',   brand: 'Yas Theme Parks',   title: 'Kids go free on weekdays',      cost: 0, expires: 'Mar 31',  color: '#1c6b8c', audience: ['concierge','info','taxi'], scene: 'corniche' },
+  { id: 'ex6', kind: 'exclusive', category: 'Attractions', brand: 'Qasr Al Hosn',   title: 'Complimentary entry for frontliners', cost: 0, expires: 'Ongoing', color: '#6b4a2a', audience: ['concierge','info','taxi'], scene: 'louvre' },
 ];
 
 Object.assign(window, { PERSONAS, FEED, BADGES, LEADERBOARD, COURSES, LEARNING_MODULES, COUPONS });

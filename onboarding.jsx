@@ -196,7 +196,7 @@ function StepVenueType({ theme, value, setValue, onNext }) {
     <>
       <OnboardHeader theme={theme} step={1} total={4}
         kicker="DCT HOST · Let's get you set up"
-        title="Where do you welcome guests?"/>
+        title="Select your touchpoint"/>
       <div style={{ padding: '10px 20px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {VENUE_TYPES.map(v => (
           <OptionCard key={v.id} theme={theme}
@@ -221,7 +221,7 @@ function StepBrand({ theme, venueType, value, setValue, onNext, onBack }) {
     <>
       <OnboardHeader theme={theme} step={2} total={4} onBack={onBack}
         kicker={venueLabel}
-        title="Which brand do you work for?"/>
+        title="Select your asset / venue"/>
       <div style={{ padding: '10px 20px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
         {options.map(b => (
           <OptionCard key={b.id} theme={theme}
@@ -254,7 +254,7 @@ function StepRole({ theme, venueType, brandId, value, setValue, onNext, onBack }
     <>
       <OnboardHeader theme={theme} step={3} total={4} onBack={onBack}
         kicker={brandLabel}
-        title="What's your role?"/>
+        title="Select your job profile"/>
       <div style={{ padding: '10px 20px 0', display: 'flex', flexDirection: 'column', gap: 8 }}>
         {options.map(r => (
           <OptionCard key={r.id} theme={theme}
@@ -382,8 +382,8 @@ const TOUR_SLIDES = [
   {
     id: 'welcome',
     kicker: 'Welcome to DCT Host',
-    title: 'Your city needs you to know it.',
-    body: 'This app keeps you connected, informed and rewarded — every shift, every day.',
+    title: 'Welcome to your Frontliner Experience Hub.',
+    body: 'Your learning, updates, rewards, and recognition are now personalised to your role and touchpoint.',
     scene: 'corniche',
     cta: 'Show me around',
   },
