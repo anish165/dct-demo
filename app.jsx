@@ -45,7 +45,7 @@ function TabBar({ theme, active, setActive }) {
   );
 }
 
-function HomeScreen({ theme, persona, onNav }) {
+function HomeScreen({ theme, persona, onNav, isNewUser }) {
   return (
     <div style={{ paddingTop: 54, paddingBottom: 100 }}>
       <div style={{ padding: '10px 20px 0' }}>
@@ -54,16 +54,16 @@ function HomeScreen({ theme, persona, onNav }) {
           color: theme.ink, letterSpacing: -0.5,
         }}>Home</div>
       </div>
-      <HomeHero theme={theme} persona={persona}/>
+      <HomeHero theme={theme} persona={persona} isNewUser={isNewUser}/>
 
       {/* quick pillars */}
       <div style={{ padding: '18px 16px 0' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {[
-            { k: 'learn', icon: 'learn', title: '3 courses', sub: 'recommended' },
+            { k: 'learn', icon: 'learn', title: '3 courses', sub: 'recommended for you' },
             { k: 'feed', icon: 'megaphone', title: '12 updates', sub: 'from DCT today' },
-            { k: 'rewards', icon: 'wallet', title: `${persona.points.toLocaleString()} pts`, sub: 'to spend' },
-            { k: 'recognition', icon: 'medal', title: '7 badges', sub: '1 away from Gold' },
+            { k: 'rewards', icon: 'wallet', title: isNewUser ? '0 pts' : `${persona.points.toLocaleString()} pts`, sub: isNewUser ? 'start earning' : 'to spend' },
+            { k: 'recognition', icon: 'medal', title: isNewUser ? '0 badges' : '7 badges', sub: isNewUser ? 'start your journey' : '1 away from Gold' },
           ].map(c => (
             <div key={c.k} onClick={() => onNav(c.k)} style={{
               background: theme.surface, borderRadius: 14, padding: '14px',
@@ -306,6 +306,31 @@ function AppRoot() {
     try { return JSON.parse(localStorage.getItem('dct_profile') || 'null'); } catch { return null; }
   });
   const [showTourOnly, setShowTourOnly] = React.useState(false);
+  const [isNewUser, setIsNewUser] = React.useState(false);
+
+  // build effective persona — zeroed stats for new users, profile-aware
+  const effectivePersona = React.useMemo(() => {
+    if (!isNewUser) return persona;
+    const roleLabel = profile?.roleId
+      ? (profile.roleId.charAt(0).toUpperCase() + profile.roleId.slice(1)).replace(/-/g, ' ')
+      : persona.role;
+    const venueLabel = profile?.brandId
+      ? profile.brandId.charAt(0).toUpperCase() + profile.brandId.slice(1)
+      : persona.venue;
+    return {
+      ...persona,
+      name: profile?.name || persona.name,
+      role: roleLabel,
+      venue: venueLabel,
+      avatar: (profile?.name || persona.name).split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase(),
+      points: 0,
+      xp: 0,
+      xpNext: 1000,
+      rank: null,
+      badges: 0,
+      tier: 'New Host',
+    };
+  }, [isNewUser, persona, profile]);
 
   // push notification demo trigger
   const triggerPush = () => {
@@ -414,13 +439,13 @@ function AppRoot() {
               {[
                 { label: '1. Register', fn: () => {
                     try { localStorage.removeItem('dct_onboarded'); localStorage.removeItem('dct_profile'); } catch {}
-                    setOnboarded(false); setProfile(null);
+                    setOnboarded(false); setProfile(null); setIsNewUser(true);
                 } },
-                { label: '2. Learn', fn: () => { setTab('learn'); } },
-                { label: '3. Earn points', fn: () => setLesson({ show: true, stage: 'playing' }) },
+                { label: '2. Learn', fn: () => { setIsNewUser(false); setTab('learn'); } },
+                { label: '3. Earn points', fn: () => { setIsNewUser(false); setLesson({ show: true, stage: 'playing' }); } },
                 { label: '4. Stay updated', fn: () => { setTab('feed'); } },
-                { label: '5. Redeem', fn: () => setCoupon(COUPONS[0]) },
-                { label: '6. Recognise', fn: () => { setTab('recognition'); } },
+                { label: '5. Redeem', fn: () => { setIsNewUser(false); setCoupon(COUPONS[0]); } },
+                { label: '6. Recognise', fn: () => { setIsNewUser(false); setTab('recognition'); } },
                 { label: 'Simulate push', fn: triggerPush },
                 { label: 'Onboarding tour', fn: () => { setShowTourOnly(true); } },
               ].map(b => (
@@ -464,7 +489,7 @@ function AppRoot() {
                 ) : !onboarded ? (
                   <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
                     <OnboardingFlow theme={theme} onComplete={(p) => {
-                      setProfile(p); setOnboarded(true);
+                      setProfile(p); setOnboarded(true); setIsNewUser(true);
                       try {
                         localStorage.setItem('dct_onboarded', '1');
                         localStorage.setItem('dct_profile', JSON.stringify(p));
@@ -475,16 +500,16 @@ function AppRoot() {
                 ) : (
                 <>
                 <div style={{ flex: 1, overflow: 'auto', position: 'relative' }}>
-                  {tab === 'home' && <HomeScreen theme={theme} persona={persona} onNav={onNav}/>}
+                  {tab === 'home' && <HomeScreen theme={theme} persona={effectivePersona} onNav={onNav} isNewUser={isNewUser}/>}
                   {tab === 'feed' && (
                     <>
-                      <FeedHeader theme={theme} persona={persona} filter={filter} setFilter={setFilter} unseen={3}/>
-                      <FeedList theme={theme} persona={persona} filter={filter} savedIds={savedIds} toggleSave={toggleSave} onNav={onNav}/>
+                      <FeedHeader theme={theme} persona={effectivePersona} filter={filter} setFilter={setFilter} unseen={3}/>
+                      <FeedList theme={theme} persona={effectivePersona} filter={filter} savedIds={savedIds} toggleSave={toggleSave} onNav={onNav}/>
                     </>
                   )}
-                  {tab === 'learn' && <LearningScreen theme={theme} persona={persona} onOpenLesson={() => setLesson({ show: true, stage: 'playing' })}/>}
-                  {tab === 'recognition' && <RecognitionScreen theme={theme} persona={persona} onNav={onNav}/>}
-                  {tab === 'rewards' && <IncentivesScreen theme={theme} persona={persona} onRedeem={c => setCoupon(c)}/>}
+                  {tab === 'learn' && <LearningScreen theme={theme} persona={effectivePersona} onOpenLesson={() => setLesson({ show: true, stage: 'playing' })} isNewUser={isNewUser}/>}
+                  {tab === 'recognition' && <RecognitionScreen theme={theme} persona={effectivePersona} onNav={onNav} isNewUser={isNewUser}/>}
+                  {tab === 'rewards' && <IncentivesScreen theme={theme} persona={effectivePersona} onRedeem={c => setCoupon(c)} isNewUser={isNewUser}/>}
                 </div>
 
                 <TabBar theme={theme} active={tab} setActive={setTab}/>
@@ -511,7 +536,7 @@ function AppRoot() {
             fontSize: 11, color: '#6b635a', letterSpacing: 2, textTransform: 'uppercase',
             fontFamily: '-apple-system, system-ui',
           }}>
-            {persona.role} · {persona.venue} · {theme.label} theme
+            {effectivePersona.role} · {effectivePersona.venue} · {theme.label} theme
           </div>
         </div>
       </div>
