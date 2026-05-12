@@ -60,7 +60,7 @@ function HomeScreen({ theme, persona, onNav }) {
       <div style={{ padding: '18px 16px 0' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {[
-            { k: 'learn', icon: 'learn', title: '3 courses', sub: 'in progress' },
+            { k: 'learn', icon: 'learn', title: '3 courses', sub: 'recommended' },
             { k: 'feed', icon: 'megaphone', title: '12 updates', sub: 'from DCT today' },
             { k: 'rewards', icon: 'wallet', title: `${persona.points.toLocaleString()} pts`, sub: 'to spend' },
             { k: 'recognition', icon: 'medal', title: '7 badges', sub: '1 away from Gold' },
