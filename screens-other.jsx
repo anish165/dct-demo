@@ -1,7 +1,7 @@
 // screens-other.jsx — Recognition, Learning, Incentives, Home hero
 
 // ═══ HOME HERO (top of feed / standalone) ════════════════════
-function HomeHero({ theme, persona }) {
+function HomeHero({ theme, persona, isNewUser }) {
   const pct = persona.xp / persona.xpNext;
   return (
     <div style={{
@@ -27,7 +27,7 @@ function HomeHero({ theme, persona }) {
         }}>{persona.avatar}</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontSize: 12, opacity: 0.8, marginBottom: 2, fontFamily: theme.bodyFont }}>
-            Good morning,
+            {isNewUser ? 'Welcome,' : 'Good morning,'}
           </div>
           <div style={{
             fontFamily: theme.headerFont, fontSize: 18, fontWeight: 600, letterSpacing: -0.2,
@@ -49,7 +49,7 @@ function HomeHero({ theme, persona }) {
         <div style={{ width: 1, background: 'rgba(255,255,255,0.2)' }}/>
         <div>
           <div style={{ fontSize: 11, opacity: 0.75, letterSpacing: 0.3, marginBottom: 2, fontFamily: theme.bodyFont }}>CITY RANK</div>
-          <div style={{ fontFamily: theme.headerFont, fontSize: 26, fontWeight: 600, letterSpacing: -0.5 }}>#{persona.rank}</div>
+          <div style={{ fontFamily: theme.headerFont, fontSize: 26, fontWeight: 600, letterSpacing: -0.5 }}>{persona.rank != null ? `#${persona.rank}` : '—'}</div>
         </div>
         <div style={{ width: 1, background: 'rgba(255,255,255,0.2)' }}/>
         <div>
@@ -60,8 +60,14 @@ function HomeHero({ theme, persona }) {
 
       {/* XP bar */}
       <div style={{ fontSize: 11, opacity: 0.85, marginBottom: 6, fontFamily: theme.bodyFont, display: 'flex', justifyContent: 'space-between' }}>
-        <span>{persona.xp} / {persona.xpNext} XP to next tier</span>
-        <span>{Math.round(pct * 100)}%</span>
+        {isNewUser ? (
+          <span>Complete your first lesson to start earning XP</span>
+        ) : (
+          <>
+            <span>{persona.xp} / {persona.xpNext} XP to next tier</span>
+            <span>{Math.round(pct * 100)}%</span>
+          </>
+        )}
       </div>
       <div style={{ height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.2)', overflow: 'hidden' }}>
         <div style={{ height: '100%', width: `${pct*100}%`, background: '#fff', borderRadius: 3 }}/>
@@ -71,7 +77,7 @@ function HomeHero({ theme, persona }) {
 }
 
 // ═══ RECOGNITION ════════════════════════════════════════════
-function RecognitionScreen({ theme, persona, onNav }) {
+function RecognitionScreen({ theme, persona, onNav, isNewUser }) {
   const [tab, setTab] = React.useState('badges');
   return (
     <div style={{ paddingBottom: 100 }}>
@@ -105,16 +111,18 @@ function RecognitionScreen({ theme, persona, onNav }) {
           display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
           padding: '14px 16px',
         }}>
-          {BADGES.map(b => (
+          {BADGES.map(b => {
+            const earned = isNewUser ? false : b.earned;
+            return (
             <div key={b.id} style={{
               background: theme.surface, borderRadius: 16, padding: '14px 12px 12px',
               boxShadow: `0 1px 2px ${theme.hairline}`, position: 'relative',
-              opacity: b.earned ? 1 : 0.5,
+              opacity: earned ? 1 : 0.5,
             }}>
               <div style={{
                 width: 44, height: 44, borderRadius: 22, marginBottom: 8,
-                background: b.earned ? `linear-gradient(135deg, ${theme.accent2}, ${theme.accent})` : theme.chipBg,
-                color: b.earned ? '#fff' : theme.inkMuted,
+                background: earned ? `linear-gradient(135deg, ${theme.accent2}, ${theme.accent})` : theme.chipBg,
+                color: earned ? '#fff' : theme.inkMuted,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 22, fontWeight: 600,
               }}>{b.icon}</div>
@@ -125,7 +133,7 @@ function RecognitionScreen({ theme, persona, onNav }) {
               <div style={{ fontSize: 11, color: theme.inkMuted, lineHeight: 1.3, fontFamily: theme.bodyFont }}>
                 {b.desc}
               </div>
-              {b.earned && (
+              {earned && (
                 <div style={{
                   position: 'absolute', top: 10, right: 10,
                   width: 18, height: 18, borderRadius: 9,
@@ -134,7 +142,8 @@ function RecognitionScreen({ theme, persona, onNav }) {
                 }}><Icon name="check" size={10} color="#fff" strokeWidth={3}/></div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -188,22 +197,26 @@ function RecognitionScreen({ theme, persona, onNav }) {
               borderTop: `2px solid ${theme.accent}`,
             }}>
               <div style={{ width: 26, fontFamily: theme.headerFont, fontSize: 17, fontWeight: 600, color: theme.accent, textAlign: 'center' }}>
-                {persona.rank}
+                {isNewUser ? '—' : persona.rank}
               </div>
               <Avatar initials={persona.avatar} size={36} theme={theme} tone="accent"/>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: theme.ink, fontFamily: theme.bodyFont }}>
                   You — {persona.name}
                 </div>
-                <div style={{ fontSize: 11, color: theme.inkMuted, fontFamily: theme.bodyFont }}>{persona.venue}</div>
+                <div style={{ fontSize: 11, color: theme.inkMuted, fontFamily: theme.bodyFont }}>
+                  {isNewUser ? 'Start learning to climb the board' : persona.venue}
+                </div>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontFamily: theme.headerFont, fontSize: 15, fontWeight: 600, color: theme.ink }}>
                   {persona.points.toLocaleString()}
                 </div>
-                <div style={{ fontSize: 10, color: theme.accent, fontWeight: 600, fontFamily: theme.bodyFont }}>
-                  ↑ +85
-                </div>
+                {!isNewUser && (
+                  <div style={{ fontSize: 10, color: theme.accent, fontWeight: 600, fontFamily: theme.bodyFont }}>
+                    ↑ +85
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -212,6 +225,22 @@ function RecognitionScreen({ theme, persona, onNav }) {
 
       {tab === 'monthly' && (
         <div style={{ padding: '14px 16px 0' }}>
+          {isNewUser ? (
+            <div style={{
+              background: theme.surface, borderRadius: 18, padding: '32px 20px',
+              textAlign: 'center', boxShadow: `0 1px 2px ${theme.hairline}`,
+            }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>🏅</div>
+              <div style={{
+                fontFamily: theme.headerFont, fontSize: 18, fontWeight: 600,
+                color: theme.ink, marginBottom: 6,
+              }}>Your first month starts now</div>
+              <div style={{
+                fontSize: 13, color: theme.inkMuted, fontFamily: theme.bodyFont, lineHeight: 1.5,
+              }}>Earn badges and recognition as you learn. Complete courses, win challenges, and get noticed by your peers.</div>
+            </div>
+          ) : (
+          <>
           {/* top performer */}
           <div style={{
             background: `linear-gradient(135deg, ${theme.accent2}, ${theme.accent})`,
@@ -266,11 +295,29 @@ function RecognitionScreen({ theme, persona, onNav }) {
               <div style={{ fontSize: 12, fontWeight: 700, color: theme.accent, fontFamily: theme.bodyFont, flexShrink: 0 }}>{a.pts}</div>
             </div>
           ))}
+          </>
+          )}
         </div>
       )}
 
       {tab === 'peers' && (
         <div style={{ padding: '14px 16px 0' }}>
+          {isNewUser ? (
+            <div style={{
+              background: theme.surface, borderRadius: 18, padding: '32px 20px',
+              textAlign: 'center', boxShadow: `0 1px 2px ${theme.hairline}`,
+            }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>🤝</div>
+              <div style={{
+                fontFamily: theme.headerFont, fontSize: 18, fontWeight: 600,
+                color: theme.ink, marginBottom: 6,
+              }}>No shout-outs yet</div>
+              <div style={{
+                fontSize: 13, color: theme.inkMuted, fontFamily: theme.bodyFont, lineHeight: 1.5,
+              }}>Give and receive shout-outs from colleagues across Abu Dhabi. Great hosting gets noticed here.</div>
+            </div>
+          ) : (
+          <>
           {[
             { from: 'Hamad Al Nuaimi', msg: 'Walked our guests to Louvre AD when their driver no-showed. Pure class.', time: '2d' },
             { from: 'Sara Benali', msg: 'Helped me de-escalate a confused family at arrivals. Calm under fire.', time: '5d' },
@@ -293,6 +340,8 @@ function RecognitionScreen({ theme, persona, onNav }) {
               </div>
             </div>
           ))}
+          </>
+          )}
         </div>
       )}
     </div>
@@ -300,7 +349,7 @@ function RecognitionScreen({ theme, persona, onNav }) {
 }
 
 // ═══ LEARNING ═══════════════════════════════════════════════
-function LearningScreen({ theme, persona, onOpenLesson }) {
+function LearningScreen({ theme, persona, onOpenLesson, isNewUser }) {
   const [view, setView] = React.useState('modules'); // 'modules' | 'module-detail'
   const [activeModule, setActiveModule] = React.useState(null);
   const [playingUnit, setPlayingUnit] = React.useState(null);
@@ -341,27 +390,46 @@ function LearningScreen({ theme, persona, onOpenLesson }) {
         </div>
       </div>
 
-      {/* streak banner */}
-      <div style={{
-        margin: '14px 16px 0', padding: '12px 14px', borderRadius: 14,
-        background: theme.surfaceAlt, display: 'flex', alignItems: 'center', gap: 12,
-        border: `1px solid ${theme.hairline}`,
-      }}>
+      {isNewUser ? (
         <div style={{
-          width: 36, height: 36, borderRadius: 18,
-          background: theme.priority, color: '#fff',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}><Icon name="flame" size={18} color="#fff"/></div>
-        <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 13.5, fontWeight: 600, color: theme.ink, fontFamily: theme.bodyFont }}>
-            7-day lesson streak
-          </div>
-          <div style={{ fontSize: 11.5, color: theme.inkMuted, fontFamily: theme.bodyFont }}>
-            1 more day to unlock the Learner Gold badge
+          margin: '14px 16px 0', padding: '16px', borderRadius: 16,
+          background: `linear-gradient(135deg, ${theme.accent}12, ${theme.accent2}18)`,
+          border: `1px solid ${theme.accent}30`,
+        }}>
+          <div style={{
+            fontSize: 10.5, fontWeight: 700, letterSpacing: 1.2, color: theme.accent,
+            fontFamily: theme.bodyFont, textTransform: 'uppercase', marginBottom: 8,
+          }}>YOUR LEARNING PATH IS READY</div>
+          <div style={{
+            fontFamily: theme.headerFont, fontSize: 16, fontWeight: 600,
+            color: theme.ink, lineHeight: 1.3, marginBottom: 6,
+          }}>Welcome, {persona.name.split(' ')[0]}. We've selected courses based on your role as {persona.role} at {persona.venue}.</div>
+          <div style={{ fontSize: 12, color: theme.inkMuted, fontFamily: theme.bodyFont, lineHeight: 1.4 }}>
+            Complete lessons to earn points and climb the leaderboard.
           </div>
         </div>
-        <Icon name="chevron-right" size={18} color={theme.inkMuted}/>
-      </div>
+      ) : (
+        <div style={{
+          margin: '14px 16px 0', padding: '12px 14px', borderRadius: 14,
+          background: theme.surfaceAlt, display: 'flex', alignItems: 'center', gap: 12,
+          border: `1px solid ${theme.hairline}`,
+        }}>
+          <div style={{
+            width: 36, height: 36, borderRadius: 18,
+            background: theme.priority, color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}><Icon name="flame" size={18} color="#fff"/></div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 600, color: theme.ink, fontFamily: theme.bodyFont }}>
+              7-day lesson streak
+            </div>
+            <div style={{ fontSize: 11.5, color: theme.inkMuted, fontFamily: theme.bodyFont }}>
+              1 more day to unlock the Learner Gold badge
+            </div>
+          </div>
+          <Icon name="chevron-right" size={18} color={theme.inkMuted}/>
+        </div>
+      )}
 
       {/* modules grid */}
       <div style={{ padding: '18px 20px 6px' }}>
@@ -371,9 +439,10 @@ function LearningScreen({ theme, persona, onOpenLesson }) {
         }}>Learning modules</div>
       </div>
       <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {LEARNING_MODULES.map(mod => (
-          <ModuleCard key={mod.id} theme={theme} module={mod} onClick={() => openModule(mod)}/>
-        ))}
+        {LEARNING_MODULES.map(mod => {
+          const displayMod = isNewUser ? { ...mod, completedUnits: 0 } : mod;
+          return <ModuleCard key={mod.id} theme={theme} module={displayMod} onClick={() => openModule(mod)}/>;
+        })}
       </div>
 
       {/* quick pick (micro-lesson) */}
@@ -413,7 +482,9 @@ function LearningScreen({ theme, persona, onOpenLesson }) {
       </div>
 
       <div style={{ padding: '0 16px' }}>
-        {COURSES.map(c => (
+        {COURSES.map(cOrig => {
+          const c = isNewUser ? { ...cOrig, progress: 0, status: 'new' } : cOrig;
+          return (
           <div key={c.id} style={{
             background: theme.surface, borderRadius: 14, padding: '12px 14px',
             marginBottom: 10, boxShadow: `0 1px 2px ${theme.hairline}`,
@@ -455,7 +526,8 @@ function LearningScreen({ theme, persona, onOpenLesson }) {
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -821,7 +893,7 @@ function RateExperienceSheet({ theme, unit, onDone }) {
 }
 
 // ═══ INCENTIVES / REWARDS ═══════════════════════════════════
-function IncentivesScreen({ theme, persona, onRedeem }) {
+function IncentivesScreen({ theme, persona, onRedeem, isNewUser }) {
   const dctRewards = COUPONS.filter(c => c.kind === 'dct');
   const partnerRewards = COUPONS.filter(c => c.kind === 'partner');
   const exclusiveOffers = COUPONS.filter(c => c.kind === 'exclusive');
@@ -882,17 +954,32 @@ function IncentivesScreen({ theme, persona, onRedeem }) {
         }}>
           <div style={{ flex: 1, padding: '12px 18px', borderRight: '1px solid rgba(255,255,255,0.12)' }}>
             <div style={{ fontSize: 10, opacity: 0.6, letterSpacing: 0.5, fontFamily: theme.bodyFont, marginBottom: 2 }}>EARNED</div>
-            <div style={{ fontFamily: theme.headerFont, fontSize: 18, fontWeight: 600 }}>6,420</div>
+            <div style={{ fontFamily: theme.headerFont, fontSize: 18, fontWeight: 600 }}>{isNewUser ? '0' : '6,420'}</div>
           </div>
           <div style={{ flex: 1, padding: '12px 18px' }}>
             <div style={{ fontSize: 10, opacity: 0.6, letterSpacing: 0.5, fontFamily: theme.bodyFont, marginBottom: 2 }}>REDEEMED</div>
-            <div style={{ fontFamily: theme.headerFont, fontSize: 18, fontWeight: 600 }}>1,600</div>
+            <div style={{ fontFamily: theme.headerFont, fontSize: 18, fontWeight: 600 }}>{isNewUser ? '0' : '1,600'}</div>
           </div>
         </div>
       </div>
 
       {/* points history */}
       <div style={{ padding: '12px 16px 0' }}>
+        {isNewUser ? (
+          <div style={{
+            background: theme.surface, borderRadius: 14, padding: '20px 16px',
+            boxShadow: `0 1px 2px ${theme.hairline}`, textAlign: 'center',
+          }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>🎯</div>
+            <div style={{
+              fontFamily: theme.headerFont, fontSize: 15, fontWeight: 600,
+              color: theme.ink, marginBottom: 4,
+            }}>Start earning points</div>
+            <div style={{
+              fontSize: 12.5, color: theme.inkMuted, fontFamily: theme.bodyFont, lineHeight: 1.5,
+            }}>Complete your first course to start earning points. Every lesson, quiz, and challenge earns you rewards.</div>
+          </div>
+        ) : (
         <div style={{
           background: theme.surface, borderRadius: 14, overflow: 'hidden',
           boxShadow: `0 1px 2px ${theme.hairline}`,
@@ -918,6 +1005,7 @@ function IncentivesScreen({ theme, persona, onRedeem }) {
             </div>
           ))}
         </div>
+        )}
       </div>
 
       {/* ── FOR YOU — persona-tailored featured ── */}
